@@ -1,0 +1,52 @@
+'------------------------------------------------------------------------------------------------------
+'										DNS Demo
+'------------------------------------------------------------------------------------------------------
+'In Tibbo Basic, the Domain Name is not supported in Object level. (sock.targetip has to be in ip format)
+'DNS support is added as a libaray for this purpose.
+'This Demo will show how to use DNS libaray to obtain IP address mapped to a domain name.
+'
+'NOTE: you will need to know one valid DNS Server IP to send you DNS Query.
+'you can find out your current Domain Name Server by typing "ipconfig /all" in a command prompt under Windows.
+' 
+'1. Setup your DNS server by  giving the DNS IP, (sNameServerIP = ...)
+'2. After setting up the DNS IP, do InitDNS to setup the defualt value and connect to DNS Server 
+'3. Use Query("your.domain.name") to send DNS Query
+'4. After Query is sent, you have to do ExtractFromRXBuff to get all the reponds out of RX buffer.
+'	ExtractFromRXBuff returns an byte value query result.		bRCode: 0:no error, 2:server fail, 3:name error
+'5.	You can check how many Ip address is mapped to the domain name in question by using bAnsCount, and
+'	extract 1 single IP by using ConvertToIPString (index)
+'
+'RD.042007
+'------------------------------------------------------------------------------------------------------
+
+include "global.tbh"
+
+sub on_sys_init
+'set IP address						
+	net.gatewayip = "192.168.1.1"  	'<----------- you may need to change this
+	net.netmask = "255.255.255.0"	'<----------- you may need to change this
+	net.ip = "192.168.1.105" 		'<----------- you may need to change this
+	sNameServerIP = "168.95.1.1"	'<----------- you may need to change this
+	InitDNS
+end sub
+
+sub on_sock_data_arrival
+	dim s as byte
+	dim k1 as string
+	dim k2 as string
+	dim k3 as string
+	dim k4 as string
+	dim k5 as string
+	s = ExtractFromRXBuff	
+	k1 = ConvertToIPString(1)
+	k2 = ConvertToIPString(2)
+	k3 = ConvertToIPString(3)
+	k4 = ConvertToIPString(4)
+	k5 = ConvertToIPString(5)
+end sub
+
+sub on_button_pressed
+	if sock.statesimple = PL_SSTS_EST then		
+		Query("www.yahoo.com")
+	end if
+end sub
